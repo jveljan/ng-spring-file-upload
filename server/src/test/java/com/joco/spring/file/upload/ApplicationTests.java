@@ -1,4 +1,4 @@
-package com.joco.fu.bp;
+package com.joco.spring.file.upload;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

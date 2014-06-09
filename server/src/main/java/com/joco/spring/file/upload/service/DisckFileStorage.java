@@ -6,30 +6,39 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class DisckFileStorage implements FileStorage {
+public class DisckFileStorage implements FileStorage, InitializingBean {
 	
-	private String BASE_DIR = "./files/";
-	public DisckFileStorage() {
-		new File(BASE_DIR).mkdirs();
+	@Value("${disk.storage.dir:./.files/}")
+	private String diskStorageDir;
+	
+	private ObjectMapper mapper;
+	
+	@Autowired
+	public DisckFileStorage(ObjectMapper mapper) {
+		this.mapper = mapper;
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		new File(diskStorageDir).mkdirs();
 	}
 	
 	public String uploadFile(String name, String contentType, InputStream is) throws IOException {
 		String rv = UUID.randomUUID().toString();
 		int length = writeFileData(rv, is);
 		createFileInfo(rv, name, contentType, length);
-		
 		return rv;
 	}
 	
@@ -41,59 +50,57 @@ public class DisckFileStorage implements FileStorage {
 			IOUtils.closeQuietly(fos);
 		}
 	}
-	@Autowired
-	ObjectMapper mapper;
+	
 
 	private File getFileDataFile(String id) {
-		return new File(BASE_DIR, id + ".data");
+		return new File(diskStorageDir, id + ".data");
 	}
 	private File getFileInfoJsonFile(String id) {
-		return new File(BASE_DIR, id + ".json");
+		return new File(diskStorageDir, id + ".json");
 	}
 	
 	private void createFileInfo(String id, String name, String contentType, long contentLength) throws IOException {
 		FileOutputStream fos = new FileOutputStream(getFileInfoJsonFile(id));
-		Map<String, String> m = new HashMap<>();
-		m.put("name", name);
-		m.put("contentType", contentType);
-		m.put("contentLength", new Long(contentLength).toString());
-		mapper.writeValue(fos, m);
+		FileInfo fi = new FileInfo();
+		fi.setContentType(contentType);
+		fi.setCreatedOn(new Date());
+		fi.setName(name);
+		fi.setLength(contentLength);
+		mapper.writeValue(fos, fi);
 		fos.close();
 	}
 	
-	private Map<String, String> readFileInfo(String id) {
+	private FileInfo readFileInfo(String id) {
 		try {
-			return mapper.readValue(getFileInfoJsonFile(id), new TypeReference<HashMap<String,String>>(){});
+			return mapper.readValue(getFileInfoJsonFile(id), FileInfo.class);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	
-
-	/* (non-Javadoc)
-	 * @see com.joco.fu.bp.FileService#getFile(java.lang.String)
-	 */
 	@Override
-	public FileInfo getFile(final String id) throws FileNotFoundException {
-		FileInfo fi = new FileInfo() {
-			@Override
-			public InputStream getInputStream() throws IOException {
-				return new FileInputStream(getFileDataFile(id));
-			}
-		};
-		if(!exists(id)) {
-			throw new FileNotFoundException();
-		}
-		Map<String, String> m = readFileInfo(id);
-		fi.setName(m.get("name")); 
-		fi.setContentType(m.get("contentType"));
-		fi.setLength(Long.valueOf(m.get("contentLength")));
-		return fi;
+	public FileInfo getFileInfo(final String id) throws FileNotFoundException {
+		if(!exists(id)) throw new FileNotFoundException();
+		return readFileInfo(id);
+	}
+	@Override
+	public InputStream getFileInputStream(final String id) throws FileNotFoundException {
+		if(!exists(id)) throw new FileNotFoundException();
+		return new FileInputStream(getFileDataFile(id));
 	}
 
 	@Override
 	public boolean exists(String id) {
 		return getFileDataFile(id).exists() && getFileInfoJsonFile(id).exists();
 	}
+
+	@Override
+	public void removeFile(String id) {
+		if (exists(id)) {
+			getFileInfoJsonFile(id).delete();
+			getFileDataFile(id).delete();
+		}
+	}
+
+	
 }

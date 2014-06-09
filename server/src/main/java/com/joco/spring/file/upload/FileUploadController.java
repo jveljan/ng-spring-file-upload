@@ -31,10 +31,10 @@ public class FileUploadController {
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
 	public void getFile(@PathVariable String id, HttpServletResponse response) throws Exception {
 		ServletOutputStream os = response.getOutputStream();
-		FileInfo fi = fileStorage.getFile(id);
+		FileInfo fi = fileStorage.getFileInfo(id);
 		response.setContentType(fi.getContentType());
 		response.setHeader("contentLength", String.valueOf(fi.getLength()));
-		try (InputStream is = fi.getInputStream()) {
+		try (InputStream is = fileStorage.getFileInputStream(id)) {
 			IOUtils.copy(is, os);
 			os.flush();
 		}
@@ -42,7 +42,7 @@ public class FileUploadController {
 	
 	@RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     public @ResponseBody FileInfo getFileInfo(@PathVariable("id") String id) throws Exception {
-        return fileStorage.getFile(id);
+        return fileStorage.getFileInfo(id);
     }
 	
 	@RequestMapping(value="/upload", method=RequestMethod.POST)

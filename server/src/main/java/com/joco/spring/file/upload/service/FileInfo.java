@@ -1,17 +1,15 @@
 package com.joco.spring.file.upload.service;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-public abstract class FileInfo {
+public class FileInfo {
 	private String name;
 	private String contentType;
 	private long length;
+	private Date createdOn;
 	
-	@JsonIgnore
-	public abstract InputStream getInputStream() throws IOException;
+	public FileInfo() {
+	}
 	
 	public String getName() {
 		return name;
@@ -30,5 +28,13 @@ public abstract class FileInfo {
 	}
 	public void setLength(long length) {
 		this.length = length;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
 	}
 }
