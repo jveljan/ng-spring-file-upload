@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.joco</groupId>
-	<artifactId>fupload</artifactId>
+	<groupId>com.joco.spring.file.upload</groupId>
+	<artifactId>spring-file-upload-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>File Uploader</name>
@@ -36,7 +36,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>com.joco.fu.bp.Application</start-class>
+		<start-class>com.joco.spring.file.upload.Application</start-class>
 		<java.version>1.7</java.version>
 	</properties>
 
