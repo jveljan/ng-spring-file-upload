@@ -2,8 +2,9 @@
 <body>
 	<form method="POST" enctype="multipart/form-data"
 		action="http://localhost:8080/files/upload">
-		File to upload: <input type="file" name="file"><br /> Name: <input
-			type="text" name="name"><br /> <br /> <input type="submit"
+		File(s) to upload: <input type="file" name="file" multiple>
+		
+		<br /> <input type="submit"
 			value="Upload"> Press here to upload the file!
 	</form>
 </body>

@@ -2,6 +2,8 @@ package com.joco.spring.file.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -24,12 +26,12 @@ import com.joco.spring.file.upload.service.FileStorage;
 public class FileUploadController {
 	
 	@Autowired
-	FileStorage files;
+	FileStorage fileStorage;
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
 	public void getFile(@PathVariable String id, HttpServletResponse response) throws Exception {
 		ServletOutputStream os = response.getOutputStream();
-		FileInfo fi = files.getFile(id);
+		FileInfo fi = fileStorage.getFile(id);
 		response.setContentType(fi.getContentType());
 		response.setHeader("contentLength", String.valueOf(fi.getLength()));
 		try (InputStream is = fi.getInputStream()) {
@@ -40,12 +42,17 @@ public class FileUploadController {
 	
 	@RequestMapping(value="/info/{id}", method=RequestMethod.GET)
     public @ResponseBody FileInfo getFileInfo(@PathVariable("id") String id) throws Exception {
-        return files.getFile(id);
+        return fileStorage.getFile(id);
     }
 	
 	@RequestMapping(value="/upload", method=RequestMethod.POST)
-    public @ResponseBody String handleFileUpload(@RequestParam("name") String name, @RequestParam("file") MultipartFile file) throws IOException {
-        return files.uploadFile(name, file.getContentType(), file.getInputStream());
+    public @ResponseBody List<String> handleFilesUpload(@RequestParam("file") List<MultipartFile> files) throws IOException {
+        List<String> fileIds = new ArrayList<>();
+        for(MultipartFile file : files) {
+        	String id = fileStorage.uploadFile(file.getOriginalFilename(), file.getContentType(), file.getInputStream());
+        	fileIds.add(id);
+        }
+        return fileIds;
     }
 
 }

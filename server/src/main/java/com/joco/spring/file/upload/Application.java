@@ -22,7 +22,7 @@ public class Application {
     MultipartConfigElement multipartConfigElement() {
         MultiPartConfigFactory factory = new MultiPartConfigFactory();
         factory.setMaxFileSize("10MB");
-        factory.setMaxRequestSize("10MB");
+        factory.setMaxRequestSize("100MB");
         return factory.createMultipartConfig();
     }
 }
