@@ -1,4 +1,4 @@
-package com.joco.fu.bp.service;
+package com.joco.spring.file.upload.service;
 
 import java.io.File;
 import java.io.FileInputStream;

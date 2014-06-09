@@ -1,4 +1,4 @@
-package com.joco.fu.bp.service;
+package com.joco.spring.file.upload.service;
 
 import java.io.IOException;
 import java.io.InputStream;

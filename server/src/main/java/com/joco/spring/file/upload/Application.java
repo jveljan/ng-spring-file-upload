@@ -1,4 +1,4 @@
-package com.joco.fu.bp;
+package com.joco.spring.file.upload;
 
 import javax.servlet.MultipartConfigElement;
 

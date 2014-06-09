@@ -1,4 +1,4 @@
-package com.joco.fu.bp;
+package com.joco.spring.file.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.joco.fu.bp.service.FileInfo;
-import com.joco.fu.bp.service.FileStorage;
+import com.joco.spring.file.upload.service.FileInfo;
+import com.joco.spring.file.upload.service.FileStorage;
 
 @Controller
 @RequestMapping("/files")
