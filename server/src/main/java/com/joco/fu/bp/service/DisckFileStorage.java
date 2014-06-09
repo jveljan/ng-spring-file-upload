@@ -2,6 +2,7 @@ package com.joco.fu.bp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,16 +14,14 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class FileServiceDiskFile implements FileService {
+public class DisckFileStorage implements FileStorage {
 	
 	private String BASE_DIR = "./files/";
-	public FileServiceDiskFile() {
+	public DisckFileStorage() {
 		new File(BASE_DIR).mkdirs();
 	}
 	
@@ -62,25 +61,39 @@ public class FileServiceDiskFile implements FileService {
 		fos.close();
 	}
 	
-	private Map<String, String> readFileInfo(String id) throws JsonParseException, JsonMappingException, IOException {
-		return mapper.readValue(getFileInfoJsonFile(id), new TypeReference<HashMap<String,String>>(){});
+	private Map<String, String> readFileInfo(String id) {
+		try {
+			return mapper.readValue(getFileInfoJsonFile(id), new TypeReference<HashMap<String,String>>(){});
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see com.joco.fu.bp.FileService#getFile(java.lang.String)
 	 */
 	@Override
-	public FileInfo getFile(final String id) throws Exception {
+	public FileInfo getFile(final String id) throws FileNotFoundException {
 		FileInfo fi = new FileInfo() {
 			@Override
 			public InputStream getInputStream() throws IOException {
 				return new FileInputStream(getFileDataFile(id));
 			}
 		};
+		if(!exists(id)) {
+			throw new FileNotFoundException();
+		}
 		Map<String, String> m = readFileInfo(id);
 		fi.setName(m.get("name")); 
 		fi.setContentType(m.get("contentType"));
 		fi.setLength(Long.valueOf(m.get("contentLength")));
 		return fi;
+	}
+
+	@Override
+	public boolean exists(String id) {
+		return getFileDataFile(id).exists() && getFileInfoJsonFile(id).exists();
 	}
 }
